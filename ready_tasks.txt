@@ -1,0 +1,54 @@
+❌ ÝETMEÝÄN FUNKSIONALLAR (tasks.txt-dan)
+1. 🎛️ Dolandyryş Paneli (Dashboard)
+
+❌ Global ýagdaý widgetleri
+❌ Maliýe statistikasy
+❌ HDD/SSD monitoring
+❌ Howa maglumaty API integratiýasy
+❌ Gyssagly ýatlatmalar sistemi
+
+2. 👥 CRM (Müşderi Gatnaşyklary)
+
+❌ Leads dolandyryşy
+❌ Müşderi profilleri
+❌ Şertnama generatory (PDF)
+❌ Töleg taryhy we SMS ýatlatmalar
+❌ Sowgatlaç ulgamy
+
+3. 📅 Akylly Senenama - Advanced features
+
+⚠️ Esasy senenama bar, ýöne:
+❌ Conflict detection (çaknyşyk barlaýjy)
+❌ Topar bölünişigi
+❌ Golden Hour görkezijisi
+❌ Google Calendar Sync
+
+4. 🎬 Önümçilik (Workflow)
+
+❌ Kanban tagtasy (VueDraggable bar, ýöne UI ýok)
+❌ Checklist sistemi
+❌ Wersiýa gözegçiligi
+❌ Software launcher (Premiere/Photoshop açmak)
+
+5. 🎒 Enjamlar (Inventory)
+
+❌ Enjam sanawy
+❌ Check-in/Check-out sistemi
+❌ Amortizasiýa hasaplaýjy
+❌ Bejergi taryhy
+❌ QR kod ulgamy
+
+6. 💰 Maliýe
+
+❌ Girdeji/Çykdajy hasaby
+❌ Net profit hasaplaýjy
+❌ Aýlyk hasaplaýjy
+❌ Çek/hasap-faktura generatory
+
+7. 👥 HR we Topar
+
+❌ Işgär bazasy
+❌ Rating/Ynam sistemi
+❌ Availability calendar
+❌ Awto-SMS tabşyryk
+
