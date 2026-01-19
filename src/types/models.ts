@@ -5,6 +5,7 @@ export interface Client {
   email?: string;
   social_links?: string; // JSON string
   relatives?: string; // JSON string
+  birth_date?: string;
   type: "lead" | "client";
   created_at: string;
 }
@@ -21,12 +22,20 @@ export interface Project {
   created_at: string;
 }
 
+export interface ChecklistItem {
+  id: number;
+  task_id: number;
+  text: string;
+  is_completed: boolean;
+}
+
 export interface ProjectTask {
   id: number;
   project_id: number;
   title: string;
   status: "todo" | "inprogress" | "completed";
   due_time?: string;
+  checklist?: ChecklistItem[];
   created_at: string;
 }
 
@@ -47,8 +56,11 @@ export interface Equipment {
   serial_number?: string;
   purchase_date?: string;
   condition: string;
+  shutter_count: number;
+  max_shutter_life: number;
   status: "available" | "in-use" | "repair";
   checked_out_to?: number; // team_member_id
+  checked_out_date?: string;
   created_at: string;
 }
 

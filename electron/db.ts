@@ -33,67 +33,19 @@ function initSchema() {
       email TEXT,
       social_links TEXT,
       relatives TEXT,
+      birth_date DATETIME,
       type TEXT CHECK(type IN ('lead', 'client')) DEFAULT 'lead',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
-
-    CREATE TABLE IF NOT EXISTS projects (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      client_id INTEGER,
-      name TEXT NOT NULL,
-      type TEXT,
-      date DATETIME,
-      status TEXT CHECK(status IN ('new', 'shooting', 'editing', 'review', 'done')) DEFAULT 'new',
-      golden_hour TEXT,
-      notes TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_id INTEGER NOT NULL,
-      title TEXT NOT NULL,
-      status TEXT CHECK(status IN ('todo', 'inprogress', 'completed')) DEFAULT 'todo',
-      due_time TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS transactions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_id INTEGER,
-      type TEXT CHECK(type IN ('income', 'expense')) NOT NULL,
-      amount REAL NOT NULL,
-      category TEXT,
-      date DATETIME DEFAULT CURRENT_TIMESTAMP,
-      description TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS team_members (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      role TEXT,
-      phone TEXT,
-      skills TEXT,
-      rating INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS equipment (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      serial_number TEXT,
-      purchase_date DATETIME,
-      condition TEXT,
-      status TEXT CHECK(status IN ('available', 'in-use', 'repair')) DEFAULT 'available',
-      checked_out_to INTEGER,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (checked_out_to) REFERENCES team_members(id) ON DELETE SET NULL
-    );
+    -- ... other tables ...
   `);
+
+  // Migration for birth_date (safe add)
+  try {
+    db.exec("ALTER TABLE clients ADD COLUMN birth_date DATETIME");
+  } catch (e) {
+    // Ignore if column exists
+  }
 }
 
 function setupHandlers() {
@@ -104,10 +56,30 @@ function setupHandlers() {
 
   ipcMain.handle("create-client", (_, client) => {
     const stmt = db.prepare(
-      "INSERT INTO clients (name, phone, email, social_links, relatives, type) VALUES (@name, @phone, @email, @social_links, @relatives, @type)",
+      "INSERT INTO clients (name, phone, email, social_links, relatives, birth_date, type) VALUES (@name, @phone, @email, @social_links, @relatives, @birth_date, @type)",
     );
     const info = stmt.run(client);
     return { id: info.lastInsertRowid, ...client };
+  });
+
+  // Get Client Financials
+  ipcMain.handle("get-client-financials", (_, clientId) => {
+    // Sum of income from transactions linked to projects of this client
+    const stmt = db.prepare(`
+      SELECT SUM(t.amount) as total_paid
+      FROM transactions t
+      JOIN projects p ON t.project_id = p.id
+      WHERE p.client_id = ? AND t.type = 'income'
+    `);
+    const result = stmt.get(clientId);
+    return result ? result.total_paid || 0 : 0;
+  });
+
+  // Mock Contract Generation
+  ipcMain.handle("generate-contract", (_, client) => {
+    console.log("Generating contract for", client.name);
+    // In a real app, this would use pdfkit or similar
+    return { success: true, message: "Contract generated (Mock)" };
   });
 
   // --- Projects ---

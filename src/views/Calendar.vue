@@ -1,30 +1,96 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import FullCalendar from "@fullcalendar/vue3";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { api } from "../services/api";
+import type { Project } from "../types/models";
+
+const projects = ref<Project[]>([]);
+const calendarOptions = ref({
+    plugins: [dayGridPlugin, interactionPlugin],
+    initialView: "dayGridMonth",
+    events: [] as any[],
+    headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,dayGridWeek",
+    },
+    eventClick: (info: any) => {
+        alert(
+            "Event: " + info.event.title + "\nType: " + info.event.extendedProps.type,
+        );
+    },
+});
+
+const loadEvents = async () => {
+    try {
+        projects.value = await api.getProjects();
+
+        // Map projects to events
+        calendarOptions.value.events = projects.value.map((p) => {
+            // Simple conflict detection: check if there are other projects on this day
+            const conflict =
+                projects.value.filter(
+                    (op) => op.date && op.date.split("T")[0] === p.date.split("T")[0],
+                ).length > 1;
+
+            return {
+                title: p.name,
+                start: p.date,
+                backgroundColor: conflict ? "#ff4444" : getColor(p.type),
+                borderColor: conflict ? "#cc0000" : getColor(p.type),
+                extendedProps: {
+                    type: p.type,
+                    conflict: conflict,
+                },
+            };
+        });
+    } catch (e) {
+        console.error("Failed to load events", e);
+    }
+};
+
+const getColor = (type: string) => {
+    switch (type) {
+        case "wedding":
+            return "#e1306c";
+        case "love_story":
+            return "#ff9800";
+        default:
+            return "#42b983";
+    }
+};
+
+const syncGoogle = () => {
+    alert("Google Calendar Sync started... (Mock)");
+};
+
+onMounted(loadEvents);
+</script>
 
 <template>
     <div class="calendar-view">
         <header class="page-header">
-            <h1>Akylly Senenama</h1>
-            <button class="btn-primary">+ Çäre Goş</button>
+            <div>
+                <h1>Akylly Senenama</h1>
+                <p class="subtitle">Toýlar, Love Story we ş.m</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" @click="syncGoogle">
+                    🔄 Google Sync
+                </button>
+                <button class="btn-primary">+ Çäre Goş</button>
+            </div>
         </header>
 
-        <div class="calendar-placeholder">
-            <div class="month-view">
-                <!-- Mock Calendar Grid -->
-                <div class="week-header">
-                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                </div>
-                <div class="days-grid">
-                    <div v-for="i in 30" :key="i" class="day-cell">
-                        <span class="date">{{ i }}</span>
-                        <div v-if="i === 15" class="event wedding">
-                            Amangeldi & Maral (Wedding)
-                        </div>
-                        <div v-if="i === 18" class="event lovestory">
-                            Love Story (Sunset)
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="calendar-container">
+            <FullCalendar :options="calendarOptions" />
+        </div>
+
+        <div class="legend">
+            <span class="dot wedding"></span> Toý <span class="dot love"></span> Love
+            Story <span class="dot conflict"></span> Konflikt (2 toý)
         </div>
     </div>
 </template>
@@ -37,68 +103,105 @@
     margin-bottom: 24px;
 }
 
+.subtitle {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.calendar-view {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-container {
+    flex: 1;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    color: #fff;
+    overflow: auto;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* FullCalendar Customization */
+:deep(.fc) {
+    --fc-border-color: #333;
+    --fc-page-bg-color: #1e1e1e;
+    --fc-neutral-bg-color: #121212;
+    --fc-list-event-hover-bg-color: #333;
+    --fc-today-bg-color: rgba(66, 185, 131, 0.1);
+    color: #fff;
+}
+
+:deep(.fc-col-header-cell) {
+    background: #252525;
+    padding: 10px 0;
+}
+
+:deep(.fc-daygrid-day-number) {
+    color: #aaa;
+    text-decoration: none;
+}
+
+:deep(.fc-button) {
+    background-color: #333;
+    border-color: #444;
+}
+
+:deep(.fc-button-primary:not(:disabled).fc-button-active),
+:deep(.fc-button-primary:not(:disabled):active) {
+    background-color: #42b983;
+    border-color: #42b983;
+}
+
+.legend {
+    margin-top: 16px;
+    display: flex;
+    gap: 16px;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot.wedding {
+    background: #e1306c;
+}
+
+.dot.love {
+    background: #ff9800;
+}
+
+.dot.conflict {
+    background: #ff4444;
+}
+
 .btn-primary {
     background: #42b983;
-    color: #white;
+    color: #fff;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
 }
 
-.calendar-placeholder {
-    background: #1e1e1e;
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #333;
-}
-
-.week-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 10px;
-    text-align: center;
-    color: #aaa;
-    font-weight: bold;
-}
-
-.days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background: #333;
-    /* border color */
-}
-
-.day-cell {
-    background: #1e1e1e;
-    min-height: 120px;
-    padding: 8px;
-    position: relative;
-}
-
-.date {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    color: #666;
-}
-
-.event {
-    background: #42b983;
+.btn-secondary {
+    background: #444;
     color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    margin-top: 24px;
-    margin-bottom: 4px;
-}
-
-.event.wedding {
-    background: #9c27b0;
-}
-
-.event.lovestory {
-    background: #ff9800;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 </style>
