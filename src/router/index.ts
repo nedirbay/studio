@@ -2,11 +2,11 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import SidebarLayout from "../components/SidebarLayout.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Clients from "../views/Clients.vue";
-
-// Placeholders for future views
-const Placeholder = {
-  template: '<div style="padding: 20px;"><h2>Coming Soon</h2></div>',
-};
+import Calendar from "../views/Calendar.vue";
+import Production from "../views/Production.vue";
+import Inventory from "../views/Inventory.vue";
+import Finance from "../views/Finance.vue";
+import Team from "../views/Team.vue";
 
 const routes = [
   {
@@ -26,27 +26,27 @@ const routes = [
       {
         path: "calendar",
         name: "Calendar",
-        component: Placeholder,
+        component: Calendar,
       },
       {
         path: "production",
         name: "Production",
-        component: Placeholder,
+        component: Production,
       },
       {
         path: "inventory",
         name: "Inventory",
-        component: Placeholder,
+        component: Inventory,
       },
       {
         path: "finance",
         name: "Finance",
-        component: Placeholder,
+        component: Finance,
       },
       {
         path: "team",
         name: "Team",
-        component: Placeholder,
+        component: Team,
       },
     ],
   },

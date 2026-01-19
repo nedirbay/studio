@@ -9,20 +9,38 @@ const newClient = ref({
   name: "",
   phone: "",
   email: "",
+  social_links: "{}",
+  relatives: "[]",
   type: "lead" as "lead" | "client",
 });
 
 const fetchClients = async () => {
-  clients.value = await api.getClients();
+  try {
+    clients.value = await api.getClients();
+  } catch (err) {
+    console.error("Failed to fetch clients:", err);
+  }
 };
 
 const addClient = async () => {
   if (!newClient.value.name) return;
 
-  await api.createClient(newClient.value);
-  showModal.value = false;
-  newClient.value = { name: "", phone: "", email: "", type: "lead" };
-  await fetchClients();
+  try {
+    await api.createClient(newClient.value);
+    showModal.value = false;
+    newClient.value = {
+      name: "",
+      phone: "",
+      email: "",
+      social_links: "{}",
+      relatives: "[]",
+      type: "lead",
+    };
+    await fetchClients();
+  } catch (err) {
+    console.error("Failed to create client:", err);
+    alert("Error saving client. Check console.");
+  }
 };
 
 onMounted(fetchClients);
@@ -31,9 +49,9 @@ onMounted(fetchClients);
 <template>
   <div class="clients-view">
     <header class="page-header">
-      <h1>CRM & Clients</h1>
+      <h1>Müşderiler CRM</h1>
       <button class="btn-primary" @click="showModal = true">
-        + New Client
+        + Täze Müşderi
       </button>
     </header>
 
@@ -42,7 +60,9 @@ onMounted(fetchClients);
         <div class="avatar">{{ client.name.charAt(0) }}</div>
         <div class="info">
           <h3>{{ client.name }}</h3>
-          <p class="role" :class="client.type">{{ client.type }}</p>
+          <p class="role" :class="client.type">
+            {{ client.type === "lead" ? "Potensial" : "Müşderi" }}
+          </p>
           <div class="contact">
             <span>📞 {{ client.phone }}</span>
           </div>
@@ -53,35 +73,26 @@ onMounted(fetchClients);
     <!-- Simple Modal -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
       <div class="modal">
-        <h2>Add New Client</h2>
+        <h2>Täze Müşderi Goşmak</h2>
         <form @submit.prevent="addClient">
           <div class="form-group">
-            <label>Name</label>
-            <input
-              v-model="newClient.name"
-              type="text"
-              required
-              placeholder="Full Name"
-            />
+            <label>Ady</label>
+            <input v-model="newClient.name" type="text" required placeholder="Doly Ady" />
           </div>
           <div class="form-group">
-            <label>Phone</label>
-            <input
-              v-model="newClient.phone"
-              type="text"
-              placeholder="+993..."
-            />
+            <label>Telefon</label>
+            <input v-model="newClient.phone" type="text" placeholder="+993..." />
           </div>
           <div class="form-group">
-            <label>Type</label>
+            <label>Görnüşi</label>
             <select v-model="newClient.type">
-              <option value="lead">Lead (Potential)</option>
-              <option value="client">Client (Contract)</option>
+              <option value="lead">Potensial (Lead)</option>
+              <option value="client">Müşderi (Şertnama)</option>
             </select>
           </div>
           <div class="actions">
-            <button type="button" @click="showModal = false">Cancel</button>
-            <button type="submit" class="btn-primary">Save</button>
+            <button type="button" @click="showModal = false">Yza</button>
+            <button type="submit" class="btn-primary">Ýatda Sakla</button>
           </div>
         </form>
       </div>
@@ -160,6 +171,7 @@ onMounted(fetchClients);
   background: #ff980033;
   color: #ff9800;
 }
+
 .role.client {
   background: #42b98333;
   color: #42b983;

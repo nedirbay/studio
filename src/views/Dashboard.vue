@@ -32,26 +32,26 @@ onMounted(async () => {
 <template>
   <div class="dashboard">
     <header>
-      <h1>Dashboard</h1>
-      <p class="subtitle">Welcome back to the Studio Cockpit</p>
+      <h1>Dolandyryş Paneli</h1>
+      <p class="subtitle">Studiýa hoş geldiňiz</p>
     </header>
 
     <div class="grid">
       <!-- Global Status -->
       <div class="card status">
-        <h3>Active Projects</h3>
+        <h3>Aktiw Taslamalar</h3>
         <div class="value">{{ stats.activeProjects }}</div>
       </div>
 
       <!-- Quick Tasks -->
       <div class="card tasks">
-        <h3>Pending Tasks</h3>
+        <h3>Garaşýan Ýumuşlar</h3>
         <div class="value">{{ stats.pendingTasks }}</div>
       </div>
 
       <!-- Finance -->
       <div class="card finance">
-        <h3>Month Income</h3>
+        <h3>Aýlyk Girdeji</h3>
         <div class="value income">
           {{ stats.monthlyIncome.toLocaleString() }} TMT
         </div>
@@ -59,11 +59,11 @@ onMounted(async () => {
 
       <!-- HDD Monitoring -->
       <div class="card hdd">
-        <h3>Storage (C:)</h3>
+        <h3>Ýat (C:)</h3>
         <div class="progress-bar">
           <div class="fill" :style="{ width: stats.hddUsage }"></div>
         </div>
-        <div class="meta">{{ stats.hddUsage }} Used</div>
+        <div class="meta">{{ stats.hddUsage }} Dolulyk</div>
       </div>
     </div>
   </div>

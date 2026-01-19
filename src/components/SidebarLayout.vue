@@ -4,13 +4,13 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const menuItems = [
-  { name: "Dashboard", path: "/", icon: "🏠" },
-  { name: "Clients", path: "/clients", icon: "👥" },
-  { name: "Calendar", path: "/calendar", icon: "📅" },
-  { name: "Production", path: "/production", icon: "🎬" },
-  { name: "Inventory", path: "/inventory", icon: "🎒" },
-  { name: "Finance", path: "/finance", icon: "💰" },
-  { name: "Team", path: "/team", icon: "👷" },
+  { name: "Dolandyryş", path: "/", icon: "🏠" },
+  { name: "Müşderiler", path: "/clients", icon: "👥" },
+  { name: "Senenama", path: "/calendar", icon: "📅" },
+  { name: "Önümçilik", path: "/production", icon: "🎬" },
+  { name: "Enjamlar", path: "/inventory", icon: "🎒" },
+  { name: "Maliýe", path: "/finance", icon: "💰" },
+  { name: "Topar", path: "/team", icon: "👷" },
 ];
 </script>
 
@@ -21,13 +21,7 @@ const menuItems = [
         <h2>Studio</h2>
       </div>
       <nav>
-        <router-link
-          v-for="item in menuItems"
-          :key="item.path"
-          :to="item.path"
-          class="nav-item"
-          active-class="active"
-        >
+        <router-link v-for="item in menuItems" :key="item.path" :to="item.path" class="nav-item" active-class="active">
           <span class="icon">{{ item.icon }}</span>
           <span class="name">{{ item.name }}</span>
         </router-link>
