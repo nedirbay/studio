@@ -1,0 +1,88 @@
+Surat we Wideo studio üçin "Ultimate" (iň kämil) dolandyryş programmasynyň, "maksimum" derejedäki funksional sanawy. Bu sanaw, diňe bir hasap-hesip däl, eýsem studiýanyň ýüregi bolup hyzmat etjek ulgamy suratlandyrýar.
+
+1. 🎛️ Dolandyryş Paneli (Dashboard / Cockpit)
+Programmanyň "howa menzili". Ähli zat şu ýerden görünýär.
+
+Global Ýagdaý: Şu günki düşürişler, ertirki meýilnamalar we gyssagly "deadline" taslamalar.
+
+Maliýe Widgeti: Şu aýky girdeji, garaşylýan tölegler (algy), çykdajylar.
+
+HDD/SSD Monitoring: Kompýutere birikdirilen diskleriň dolulyk derejesi (gyzyl reňk bilen duýduryş bermeli).
+
+Howa Maglumaty: Ertirki toý boljak ýerleriň howa ýagdaýy (ýagyş/gün).
+
+Gyssagly Ýatlatmalar: "Bugün Sazagyň diskini tabşyrmaly", "Kameranyň batareýasyny zarýada goý".
+
+2. 👥 CRM we Müşderi Gatnaşyklary (Clients)
+Müşderi bilen ilkinji jaňdan başlap, diski tabşyrýançaň bolan gatnaşyk.
+
+Leads (Potensial Müşderiler): Heniz şertnama baglaşmadyk, ýöne sorap jaň edenler (Yzyndan jaň etmek üçin ýatlatma bilen).
+
+Doly Müşderi Profili: Ady, suraty, sosial media linkleri, garyndaşlarynyň atlary (toýda kime üns bermelidigi barada bellik).
+
+Şertnama Generatory: Şablon arkaly (PDF) şertnama döretmek we planşetde gol çekdirmek mümkinçiligi.
+
+Töleg Taryhy: Awans näçe berdi? Galany haçan bermeli? (Gijikdirilen tölegler üçin awto-sms).
+
+Sowgatlaç Ulgamy: Müşderiniň doglan güni ýa-da toýunyň 1 ýyllygy üçin awtomatiki gutlag hatlary.
+
+3. 📅 Akylly Senenama (Smart Calendar)
+Braziliýa serialy ýaly çylşyrymly grafikleri çözýän ýer.
+
+Reňkli Kategoriýalar: Toý, Hudaýýoly, Love Story, Roddom, Studio suraty.
+
+Conflict Detection: Bir güne ýalňyşlyk bilen iki toý ýazylsa, uly gyzyl duýduryş çykmaly.
+
+Topar Bölünişigi: Senenamada haýsy topara (Aman & Meret) haýsy toý degişlidigini görmek.
+
+"Golden Hour" Görkezijisi: Love Story üçin iň gowy gün batýan wagtyny senenamada görkezmek.
+
+Google Calendar Sync: Operatorlaryň telefonyna senenamany ugratmak.
+
+4. 🎬 Önümçilik we Taslama (Production & Workflow)
+Işiň "kuhnýasy".
+
+Kanban Tagtasy: (Trello ýaly)
+
+Sütünler: Täze -> Surata Düşürildi -> Kopýa Edildi -> Çernowwoý Montaž -> Reňk Sazlamasy -> Müşderi Barlagy -> Finall Render -> Tabşyryldy.
+
+Checklist (Sanaw): Her taslama üçin standart sanaw: "Introny goýduňmy?", "Sesini barladyňmy?", "Stabilizasiýa etdiňmi?".
+
+Wersiýa Gözegçiligi: "Love Story v1", "Love Story v2_düzedilen" – Müşderiniň haýyşlaryny belläp goýmak.
+
+Softweare Launcher: Programmanyň içinden "Adobe Premiere" ýa-da "Photoshop" düwmesine basanda, degişli papkany açyp taslamany işe girizmek.
+
+5. 🎒 Enjamlar we Ammar (Inventory & Gear)
+Gymmat bahaly tehnikany goramak.
+
+Enjam Sanawy: Her kameranyň, linzanyň, dronyň seriýa belgisi we satyn alnan senesi.
+
+Check-in / Check-out: "Sony A7III - Aman aldy (15.10.2023)". Kim haýsy tehnikany haçan aldy we haçan tabşyrdy?
+
+Amortizasiýa Hasaplaýjy: Kameranyň "Shutter count" (kadryny) ýazyp, onuň ömrüniň näçe galandygyny çaklamak.
+
+Bejergi Taryhy: Haýsy linza ussa gitdi, näçä bejerildi?
+
+QR Kod Ulgamy: Enjamlara QR kod ýelmemek we programma arkaly skanirläp, kimdedigini bilmek.
+
+6. 💰 Maliýe (Finance)
+Puly dogry dolandyrmak.
+
+Girdeji/Çykdajy: Studio arendasy, işgärleriň aýlygy, taksi puly, nahar puly.
+
+Net Profit: Arassa peýda hasaplaýjy (Her toýdan galýan arassa peýda).
+
+Aýlyk Hasaplaýjy: Freelancer operatorlara berilmeli puly awtomatiki hasaplamak (Mysal: Her toý üçin 1000 TMT).
+
+Çek we Hasap-faktura: Müşderä bermek üçin owadan dizaýnly töleg kagyzy.
+
+7. 👥 HR we Topar (Team Management)
+Işgärler bilen işleşmek.
+
+Işgär Bazasy: Wideoçylar, Suratçylar, Montažçylar, Sürüjiler.
+
+Rating/Ynam: Haýsy işgär wagtynda gelýär, haýsysy gijä galýar (Bellik etmek).
+
+Dolylygy (Availability): Işgärleriň haýsy günleri boşdugyny bilmek.
+
+Awto-SMS Tabşyryk: Toýdan bir gün öň operatoryň telefonyna awtomatik SMS: "Ertir 09:00, Bagt Köşgi, Unutma!".

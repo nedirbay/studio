@@ -10,7 +10,7 @@ let db: any;
 
 export function setupDatabase() {
   const userDataPath = app.getPath("userData");
-  const dbPath = path.join(userDataPath, "todo.db");
+  const dbPath = path.join(userDataPath, "studio.db");
 
   // Ensure directory exists
   if (!fs.existsSync(userDataPath)) {
@@ -26,10 +26,28 @@ export function setupDatabase() {
 
 function initSchema() {
   db.exec(`
-    CREATE TABLE IF NOT EXISTS projects (
+    CREATE TABLE IF NOT EXISTS clients (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
+      phone TEXT,
+      email TEXT,
+      social_links TEXT,
+      relatives TEXT,
+      type TEXT CHECK(type IN ('lead', 'client')) DEFAULT 'lead',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS projects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      client_id INTEGER,
+      name TEXT NOT NULL,
+      type TEXT,
+      date DATETIME,
+      status TEXT CHECK(status IN ('new', 'shooting', 'editing', 'review', 'done')) DEFAULT 'new',
+      golden_hour TEXT,
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
     );
 
     CREATE TABLE IF NOT EXISTS tasks (
@@ -37,101 +55,139 @@ function initSchema() {
       project_id INTEGER NOT NULL,
       title TEXT NOT NULL,
       status TEXT CHECK(status IN ('todo', 'inprogress', 'completed')) DEFAULT 'todo',
+      due_time TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
     );
-  `);
 
-  /* Migration for existing databases: try to add the column if it doesn't exist */
-  try {
-    db.prepare("ALTER TABLE tasks ADD COLUMN due_time TEXT").run();
-  } catch (error) {
-    // Column likely exists or other error we can ignore for now in dev
-  }
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER,
+      type TEXT CHECK(type IN ('income', 'expense')) NOT NULL,
+      amount REAL NOT NULL,
+      category TEXT,
+      date DATETIME DEFAULT CURRENT_TIMESTAMP,
+      description TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS team_members (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      role TEXT,
+      phone TEXT,
+      skills TEXT,
+      rating INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS equipment (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      serial_number TEXT,
+      purchase_date DATETIME,
+      condition TEXT,
+      status TEXT CHECK(status IN ('available', 'in-use', 'repair')) DEFAULT 'available',
+      checked_out_to INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (checked_out_to) REFERENCES team_members(id) ON DELETE SET NULL
+    );
+  `);
 }
 
 function setupHandlers() {
+  // --- Clients ---
+  ipcMain.handle("get-clients", () => {
+    return db.prepare("SELECT * FROM clients ORDER BY created_at DESC").all();
+  });
+
+  ipcMain.handle("create-client", (_, client) => {
+    const stmt = db.prepare(
+      "INSERT INTO clients (name, phone, email, social_links, relatives, type) VALUES (@name, @phone, @email, @social_links, @relatives, @type)",
+    );
+    const info = stmt.run(client);
+    return { id: info.lastInsertRowid, ...client };
+  });
+
+  // --- Projects ---
   ipcMain.handle("get-projects", () => {
-    console.log("IPC: get-projects called");
-    try {
-      const result = db
-        .prepare("SELECT * FROM projects ORDER BY created_at DESC")
-        .all();
-      // Sanitize: convert all to plain strings/numbers to avoid serialization issues
-      const sanitized = result.map((row: any) => ({
-        id: Number(row.id), // Force number
-        name: String(row.name),
-        created_at: String(row.created_at),
-      }));
-      console.log("IPC: get-projects returning:", JSON.stringify(sanitized));
-      return sanitized;
-    } catch (err) {
-      console.error("IPC: get-projects failed:", err);
-      throw err;
+    return db.prepare("SELECT * FROM projects ORDER BY date DESC").all();
+  });
+
+  ipcMain.handle("create-project", (_, project) => {
+    const stmt = db.prepare(
+      "INSERT INTO projects (client_id, name, type, date, status, golden_hour, notes) VALUES (@client_id, @name, @type, @date, @status, @golden_hour, @notes)",
+    );
+    const info = stmt.run(project);
+    return { id: info.lastInsertRowid, ...project };
+  });
+
+  ipcMain.handle("get-project", (_, id) => {
+    return db.prepare("SELECT * FROM projects WHERE id = ?").get(id);
+  });
+
+  // --- Tasks (Kanban) ---
+  ipcMain.handle("get-tasks", (_, projectId) => {
+    if (projectId) {
+      return db
+        .prepare(
+          "SELECT * FROM tasks WHERE project_id = ? ORDER BY created_at ASC",
+        )
+        .all(projectId);
     }
+    return db.prepare("SELECT * FROM tasks ORDER BY created_at ASC").all();
   });
 
-  ipcMain.handle("create-project", (_, name: string) => {
-    console.log("IPC: create-project called", name);
-    const stmt = db.prepare("INSERT INTO projects (name) VALUES (?)");
-    const info = stmt.run(name);
-    return {
-      id: info.lastInsertRowid,
-      name,
-      created_at: new Date().toISOString(),
-    };
+  ipcMain.handle("create-task", (_, task) => {
+    const stmt = db.prepare(
+      "INSERT INTO tasks (project_id, title, status, due_time) VALUES (@project_id, @title, @status, @due_time)",
+    );
+    const info = stmt.run(task);
+    return { id: info.lastInsertRowid, ...task };
   });
 
-  ipcMain.handle("delete-project", (_, id: number) => {
-    db.prepare("DELETE FROM projects WHERE id = ?").run(id);
+  ipcMain.handle("update-task-status", (_, { id, status }) => {
+    db.prepare("UPDATE tasks SET status = ? WHERE id = ?").run(status, id);
     return { success: true };
   });
 
-  ipcMain.handle("get-tasks", (_, projectId: number) => {
-    return db
-      .prepare(
-        "SELECT * FROM tasks WHERE project_id = ? ORDER BY created_at ASC",
-      )
-      .all(projectId);
+  // --- Finance ---
+  ipcMain.handle("get-transactions", () => {
+    return db.prepare("SELECT * FROM transactions ORDER BY date DESC").all();
   });
 
-  ipcMain.handle(
-    "create-task",
-    (
-      _,
-      {
-        projectId,
-        title,
-        due_time,
-      }: { projectId: number; title: string; due_time?: string },
-    ) => {
-      const stmt = db.prepare(
-        "INSERT INTO tasks (project_id, title, due_time) VALUES (?, ?, ?)",
-      );
-      const info = stmt.run(projectId, title, due_time || null);
-      return {
-        id: info.lastInsertRowid,
-        project_id: projectId,
-        title,
-        due_time,
-        status: "todo",
-      };
-    },
-  );
+  ipcMain.handle("create-transaction", (_, transaction) => {
+    const stmt = db.prepare(
+      "INSERT INTO transactions (project_id, type, amount, category, date, description) VALUES (@project_id, @type, @amount, @category, @date, @description)",
+    );
+    const info = stmt.run(transaction);
+    return { id: info.lastInsertRowid, ...transaction };
+  });
 
-  ipcMain.handle(
-    "update-task-status",
-    (_, { taskId, status }: { taskId: number; status: string }) => {
-      db.prepare("UPDATE tasks SET status = ? WHERE id = ?").run(
-        status,
-        taskId,
-      );
-      return { success: true };
-    },
-  );
+  // --- Inventory ---
+  ipcMain.handle("get-equipment", () => {
+    return db.prepare("SELECT * FROM equipment ORDER BY name ASC").all();
+  });
 
-  ipcMain.handle("delete-task", (_, taskId: number) => {
-    db.prepare("DELETE FROM tasks WHERE id = ?").run(taskId);
-    return { success: true };
+  ipcMain.handle("create-equipment", (_, item) => {
+    const stmt = db.prepare(
+      "INSERT INTO equipment (name, serial_number, purchase_date, condition, status) VALUES (@name, @serial_number, @purchase_date, @condition, @status)",
+    );
+    const info = stmt.run(item);
+    return { id: info.lastInsertRowid, ...item };
+  });
+
+  // --- Team ---
+  ipcMain.handle("get-team-members", () => {
+    return db.prepare("SELECT * FROM team_members ORDER BY name ASC").all();
+  });
+
+  ipcMain.handle("create-team-member", (_, member) => {
+    const stmt = db.prepare(
+      "INSERT INTO team_members (name, role, phone, skills, rating) VALUES (@name, @role, @phone, @skills, @rating)",
+    );
+    const info = stmt.run(member);
+    return { id: info.lastInsertRowid, ...member };
   });
 }

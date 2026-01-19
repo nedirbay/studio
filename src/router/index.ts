@@ -1,24 +1,60 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import ProjectsView from '../views/ProjectsView.vue'
-import BoardView from '../views/BoardView.vue'
+import { createRouter, createWebHashHistory } from "vue-router";
+import SidebarLayout from "../components/SidebarLayout.vue";
+import Dashboard from "../views/Dashboard.vue";
+import Clients from "../views/Clients.vue";
+
+// Placeholders for future views
+const Placeholder = {
+  template: '<div style="padding: 20px;"><h2>Coming Soon</h2></div>',
+};
 
 const routes = [
   {
-    path: '/',
-    name: 'Projects',
-    component: ProjectsView
+    path: "/",
+    component: SidebarLayout,
+    children: [
+      {
+        path: "",
+        name: "Dashboard",
+        component: Dashboard,
+      },
+      {
+        path: "clients",
+        name: "Clients",
+        component: Clients,
+      },
+      {
+        path: "calendar",
+        name: "Calendar",
+        component: Placeholder,
+      },
+      {
+        path: "production",
+        name: "Production",
+        component: Placeholder,
+      },
+      {
+        path: "inventory",
+        name: "Inventory",
+        component: Placeholder,
+      },
+      {
+        path: "finance",
+        name: "Finance",
+        component: Placeholder,
+      },
+      {
+        path: "team",
+        name: "Team",
+        component: Placeholder,
+      },
+    ],
   },
-  {
-    path: '/board/:projectId',
-    name: 'Board',
-    component: BoardView,
-    props: true
-  }
-]
+];
 
 const router = createRouter({
-  history: createWebHashHistory(), // Electron works best with HashHistory or WebHistory if configured right, but Hash is safest.
-  routes
-})
+  history: createWebHashHistory(),
+  routes,
+});
 
-export default router
+export default router;
